@@ -19,7 +19,6 @@ import (
 	"strings"
 )
 
-
 // AuthApiService AuthApi service
 type AuthApiService service
 
@@ -135,7 +134,7 @@ func (r ApiAuthLogonRequest) Data(data LogonData) ApiAuthLogonRequest {
 	return r
 }
 
-func (r ApiAuthLogonRequest) Execute() (*http.Response, error) {
+func (r ApiAuthLogonRequest) Execute() (*string, *http.Response, error) {
 	return r.ApiService.AuthLogonExecute(r)
 }
 
@@ -182,16 +181,17 @@ func (a *AuthApiService) AuthLogon(ctx context.Context, type_ string) ApiAuthLog
 }
 
 // Execute executes the request
-func (a *AuthApiService) AuthLogonExecute(r ApiAuthLogonRequest) (*http.Response, error) {
+func (a *AuthApiService) AuthLogonExecute(r ApiAuthLogonRequest) (*string, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
 		formFiles            []formFile
+		localVarReturnValue  *string
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthApiService.AuthLogon")
 	if err != nil {
-		return nil, &GenericOpenAPIError{error: err.Error()}
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
 	localVarPath := localBasePath + "/api/Auth/{type}/Logon"
@@ -201,7 +201,7 @@ func (a *AuthApiService) AuthLogonExecute(r ApiAuthLogonRequest) (*http.Response
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 	if r.data == nil {
-		return nil, reportError("data is required and must be specified")
+		return localVarReturnValue, nil, reportError("data is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -225,19 +225,19 @@ func (a *AuthApiService) AuthLogonExecute(r ApiAuthLogonRequest) (*http.Response
 	localVarPostBody = r.data
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
-		return nil, err
+		return localVarReturnValue, nil, err
 	}
 
 	localVarHTTPResponse, err := a.client.callAPI(req)
 	if err != nil || localVarHTTPResponse == nil {
-		return localVarHTTPResponse, err
+		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
 	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
 	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
-		return localVarHTTPResponse, err
+		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -245,8 +245,22 @@ func (a *AuthApiService) AuthLogonExecute(r ApiAuthLogonRequest) (*http.Response
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		return localVarHTTPResponse, newErr
+		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
-	return localVarHTTPResponse, nil
+	if len(localVarBody) < 2 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: "invalid token",
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	// 去除引号
+	if localVarBody[0] == 34 {
+		localVarReturnValue = PtrString(string(localVarBody[1:len(localVarBody)-1]))
+	}
+
+
+	return localVarReturnValue, localVarHTTPResponse, nil
 }

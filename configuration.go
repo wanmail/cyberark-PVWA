@@ -105,7 +105,7 @@ func NewConfiguration() *Configuration {
 		Debug:            false,
 		Servers:          ServerConfigurations{
 			{
-				URL: "https://10.40.0.212/PasswordVault",
+				URL: "https://localhost/PasswordVault",
 				Description: "No description provided",
 			},
 		},

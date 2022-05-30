@@ -1,6 +1,6 @@
 # \PlatformsApi
 
-All URIs are relative to *https://10.40.0.212/PasswordVault*
+All URIs are relative to *https://localhost/PasswordVault*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------

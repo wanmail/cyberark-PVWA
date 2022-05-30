@@ -72,9 +72,38 @@ ctx = context.WithValue(context.Background(), openapi.ContextOperationServerVari
 })
 ```
 
+## Documentation For Authorization
+
+ You should use logon API get session token first.
+
+ ```go
+	ctx := context.WithValue(context.Background(), openapi.ContextServerIndex, 0)
+
+	client := openapi.NewAPIClient(openapi.NewConfiguration())
+
+	token, _, err := client.AuthApi.AuthLogon(ctx, "radius").
+		Data(openapi.LogonData{
+			UserName: openapi.PtrString("username"),
+			Password: openapi.PtrString("password"),
+		}).
+		Execute()
+
+	if err != nil {
+		panic(err)
+	}
+
+	cfg := client.GetConfig()
+	if cfg.DefaultHeader == nil {
+		cfg.DefaultHeader = make(map[string]string)
+	}
+	cfg.AddDefaultHeader("Authorization", *token)
+
+	// then you can use other APIs with this token
+ ```
+
 ## Documentation for API Endpoints
 
-All URIs are relative to *https://10.40.0.212/PasswordVault*
+All URIs are relative to *https://localhost/PasswordVault*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
@@ -394,11 +423,6 @@ Class | Method | HTTP request | Description
  - [UsersFilters](docs/UsersFilters.md)
  - [VersionData](docs/VersionData.md)
  - [WorkflowPolicy](docs/WorkflowPolicy.md)
-
-
-## Documentation For Authorization
-
- Endpoints do not require authorization.
 
 
 ## Documentation for Utility Methods

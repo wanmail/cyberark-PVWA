@@ -9,7 +9,7 @@ info:
   title: Privileged Access Security REST API
   version: v1
 servers:
-- url: https://10.40.0.212/PasswordVault
+- url: https://localhost/PasswordVault
 paths:
   /api/AccountGroups:
     get:
