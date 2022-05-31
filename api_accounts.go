@@ -1984,7 +1984,7 @@ func (r ApiAccountsRetrieveRequest) AccountContentPrerequisites(accountContentPr
 	return r
 }
 
-func (r ApiAccountsRetrieveRequest) Execute() (map[string]interface{}, *http.Response, error) {
+func (r ApiAccountsRetrieveRequest) Execute() (*string, *http.Response, error) {
 	return r.ApiService.AccountsRetrieveExecute(r)
 }
 
@@ -2007,12 +2007,12 @@ func (a *AccountsApiService) AccountsRetrieve(ctx context.Context, accountId str
 
 // Execute executes the request
 //  @return map[string]interface{}
-func (a *AccountsApiService) AccountsRetrieveExecute(r ApiAccountsRetrieveRequest) (map[string]interface{}, *http.Response, error) {
+func (a *AccountsApiService) AccountsRetrieveExecute(r ApiAccountsRetrieveRequest) (*string, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
 		formFiles            []formFile
-		localVarReturnValue  map[string]interface{}
+		localVarReturnValue  *string
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AccountsApiService.AccountsRetrieve")
@@ -2074,13 +2074,17 @@ func (a *AccountsApiService) AccountsRetrieveExecute(r ApiAccountsRetrieveReques
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
-	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-	if err != nil {
+	if len(localVarBody) < 2 {
 		newErr := &GenericOpenAPIError{
 			body:  localVarBody,
-			error: err.Error(),
+			error: "invalid token",
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	// 去除引号
+	if localVarBody[0] == 34 {
+		localVarReturnValue = PtrString(string(localVarBody[1:len(localVarBody)-1]))
 	}
 
 	return localVarReturnValue, localVarHTTPResponse, nil
